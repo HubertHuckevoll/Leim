@@ -56,30 +56,58 @@ class Leim
     return $ret;
   }
 
-  public function writeAssetsAsVars()
+  public function openRSC()
+  {
+    $ret = 'Class RSC'.LE.'{'.LE;
+    return $ret;
+  }
+
+  public function closeRSC()
+  {
+    $ret = '}'.LE.LE;
+    return $ret;
+  }
+
+  public function writeAssets()
   {
     $ret = '';
     foreach ($this->encImgs as $name => $asset)
     {
-      $ret .= '$'.$name.' = \'data:'.$asset['mime'].';base64,'.$asset['content'].'\';'.LE.LE;
+      $ret .= '  public static $'.$name.' = \'data:'.$asset['mime'].';base64,'.$asset['content'].'\';'.LE;
     }
 
     return $ret;
   }
 
-  public function writeAssetsAsCSS()
+  public function writeStyleVars()
   {
-    $ret  = '$css = <<< CSSVAR';
-    $ret .= LE.'--root'.LE.'{'.LE;
+    $ret  = '  public static $css[\'var\'] = <<< CSSVAR'.LE;
+    $ret .= '  --root'.LE;
+    $ret .= '  {'.LE;
 
     foreach ($this->encImgs as $name => $asset)
     {
-      $ret .= '  --'.$name.': $'.$name.';'.LE;
+      $ret .= '    --'.$name.': self::$'.$name.';'.LE;
     }
 
-    $ret .= '}'.LE;
-    $ret .= 'CSSVAR;';
+    $ret .= '  }'.LE;
+    $ret .= '  CSSVAR;';
     $ret .= LE.LE;
+
+    return $ret;
+  }
+
+  public function writeStyleFiles()
+  {
+    $ret = '';
+    foreach($this->files['css'] as $file)
+    {
+      $cont = file_get_contents($file);
+      $cont = str_replace("\r", "", $cont);
+      $cont = str_replace("\n", "", $cont);
+
+      $ret .= '  public static $css[\''.basename($file).'\'] = \''.$cont.'\';'.LE;
+    }
 
     return $ret;
   }
@@ -97,24 +125,29 @@ class Leim
     return $ret;
   }
 
+  public function run()
+  {
+    $this->addAssets();
+    $this->add('css');
+    //$this->add('php');
+    $this->dump();
+  }
+
   public function dump()
   {
     $ret = '<?php'.LE.LE;
 
-    $ret .= $this->writeAssetsAsVars();
-    $ret .= $this->writeAssetsAsCSS();
-    $ret .= $this->writeFiles('php');
+    $ret .= $this->openRSC();
+    $ret .= $this->writeAssets();
+    $ret .= $this->writeStyleVars();
+    $ret .= $this->writeStyleFiles();
+    $ret .= $this->closeRSC();
+    //$ret .= $this->writeFiles('php');
 
     $ret .= LE.'?>'.LE;
     file_put_contents($this->outF, $ret);
   }
 
-  public function run()
-  {
-    $this->addAssets();
-    $this->add('php');
-    $this->dump();
-  }
 }
 
 $l = new Leim();
