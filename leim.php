@@ -58,7 +58,7 @@ class Leim
 
   public function openRSC()
   {
-    $ret = 'Class RSC'.LE.'{'.LE;
+    $ret = 'class RSC'.LE.'{'.LE;
     return $ret;
   }
 
@@ -81,18 +81,18 @@ class Leim
 
   public function writeStyleVars()
   {
-    $ret  = '  public static $css[\'var\'] = <<< CSSVAR'.LE;
+    $ret  = '  public static $css = array(\'var\' => <<< CSSVAR'.LE;
     $ret .= '  --root'.LE;
     $ret .= '  {'.LE;
 
     foreach ($this->encImgs as $name => $asset)
     {
-      $ret .= '    --'.$name.': self::$'.$name.';'.LE;
+      $ret .= '    --'.$name.': data:'.$asset['mime'].';base64,'.$asset['content'].';'.LE;
     }
 
     $ret .= '  }'.LE;
-    $ret .= '  CSSVAR;';
-    $ret .= LE.LE;
+    $ret .= '  CSSVAR,'.LE;
+    // add CSS files before closing array...
 
     return $ret;
   }
@@ -106,13 +106,31 @@ class Leim
       $cont = str_replace("\r", "", $cont);
       $cont = str_replace("\n", "", $cont);
 
-      $ret .= '  public static $css[\''.basename($file).'\'] = \''.$cont.'\';'.LE;
+      $ret .= '  \''.pathinfo($file, PATHINFO_FILENAME).'\' => \''.$cont.'\','.LE;
     }
+    $ret .= '  );'.LE; // close CSS array
 
     return $ret;
   }
 
-  public function writeFiles($ext)
+  public function writeJsFiles()
+  {
+    $ret  = '';
+    $ret .= '  public static $js = array('.LE;
+    foreach($this->files['js'] as $file)
+    {
+      $cont = file_get_contents($file);
+      $cont = str_replace("\r", "", $cont);
+      $cont = str_replace("\n", "", $cont);
+
+      $ret .= '  \''.pathinfo($file, PATHINFO_FILENAME).'\' => <<< JSCODE'.LE.'  '.$cont.LE.'  JSCODE,'.LE;
+    }
+    $ret .= '  );'.LE; // close CSS array
+
+    return $ret;
+  }
+
+  public function writePHPFiles($ext)
   {
     $ret = '';
 
@@ -129,6 +147,7 @@ class Leim
   {
     $this->addAssets();
     $this->add('css');
+    $this->add('js');
     //$this->add('php');
     $this->dump();
   }
@@ -141,8 +160,11 @@ class Leim
     $ret .= $this->writeAssets();
     $ret .= $this->writeStyleVars();
     $ret .= $this->writeStyleFiles();
+    $ret .= $this->writeJsFiles();
     $ret .= $this->closeRSC();
-    //$ret .= $this->writeFiles('php');
+    //$ret .= $this->writePHPFiles('php');
+
+    $ret .= 'var_dump(RSC::$css);';
 
     $ret .= LE.'?>'.LE;
     file_put_contents($this->outF, $ret);
