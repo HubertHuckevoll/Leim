@@ -6,7 +6,7 @@ define('LE', "\r\n"); // default Line Ending
 define('IND1', "  ");  // default indent: 2 spaces
 define('IND2', "    ");  // default indent: 4 spaces
 define('IND3', "      ");  // default indent: 6 spaces
-define('IND4', "        ");  // default indent: 6 spaces
+define('IND4', "        ");  // default indent: 8 spaces
 
 class Leim
 {
@@ -37,15 +37,16 @@ class Leim
     }
   }
 
-  public function add($ext)
+  public function add($root, $exts)
   {
     $ret = '';
-    $di = new RecursiveDirectoryIterator('.');
+    $di = new RecursiveDirectoryIterator($root);
 
     foreach (new RecursiveIteratorIterator($di) as $filename => $file)
     {
+      $ext = strtolower($file->getExtension());
       if (
-            (strtolower($file->getExtension()) == strtolower($ext)) &&
+            (in_array($ext, $exts)) &&
             (!$file->isDir()) &&
             ($filename != '.') &&
             ($filename != '..') &&
@@ -61,7 +62,7 @@ class Leim
     return $ret;
   }
 
-  public function openRSC()
+  public function openRscClass()
   {
     $ret  = '';
     $ret .= 'namespace'.LE;
@@ -72,7 +73,7 @@ class Leim
     return $ret;
   }
 
-  public function closeRSC()
+  public function closeRscClass()
   {
     $ret  = '';
     $ret .= IND1.'}'.LE; // class
@@ -81,35 +82,76 @@ class Leim
     return $ret;
   }
 
-  public function writeAssets()
+  public function openRscCSS()
   {
+    // open CSS array
     $ret  = '';
-    $ret .= IND2.'public static $assets = array('.LE;
-    foreach ($this->encImgs as $name => $asset)
-    {
-      $ret .= IND3.'\''.$name.'\' => \'data:'.$asset['mime'].';base64,'.$asset['content'].'\','.LE;
-    }
-    $ret .= IND2.')'.LE;
+    $ret .= IND2.'public static $css = array('.LE;
+
+    return $ret;
+  }
+
+  public function closeRscCSS()
+  {
+    // close CSS array
+    $ret  = '';
+    $ret .= IND2.');'.LE;
     $ret .= LE;
 
     return $ret;
   }
 
-  public function writeStyleVars()
+  public function file2DataURI($file)
   {
-    $ret  = IND2.'public static $css = array('.LE;
+    $mime = strtolower(mime_content_type($file)); // return mime type ala mimetype extension
+    $content = base64_encode(file_get_contents($file));
+    $ret = 'data:'.$mime.';base64,'.$content;
+
+    return $ret;
+  }
+
+  public function writeAssets($exts)
+  {
+    $ret  = '';
+    $ret .= IND2.'public static $assets = array('.LE;
+    foreach($exts as $ext)
+    {
+      foreach ($this->files[$ext] as $path => $files)
+      {
+        foreach($files as $file)
+        {
+          $varName = pathinfo($file, PATHINFO_FILENAME);
+          $ret .= IND3.'\''.$varName.'\' => \''.$this->file2DataURI($file).'\','.LE;
+        }
+      }
+    }
+    $ret .= IND2.');'.LE;
+    $ret .= LE;
+
+    return $ret;
+  }
+
+  public function writeStyleVars($exts)
+  {
+    $ret  = '';
     $ret .= IND3.'\'var\' => <<< CSSVAR'.LE;
     $ret .= IND3.'--root'.LE;
     $ret .= IND3.'{'.LE;
 
-    foreach ($this->encImgs as $name => $asset)
+    foreach($exts as $ext)
     {
-      $ret .= IND4.'--'.$name.': data:'.$asset['mime'].';base64,'.$asset['content'].';'.LE;
+      foreach ($this->files[$ext] as $path => $files)
+      {
+        foreach($files as $file)
+        {
+          $varName = pathinfo($file, PATHINFO_FILENAME);
+          $ret .= IND4.'--'.$varName.': '.$this->file2DataURI($file).';'.LE;
+        }
+      }
     }
 
     $ret .= IND3.'}'.LE;
     $ret .= IND3.'CSSVAR,'.LE;
-    // add CSS files before closing array...
 
     return $ret;
   }
@@ -128,9 +170,6 @@ class Leim
         $ret .= IND3.'\''.pathinfo($file, PATHINFO_FILENAME).'\' => \''.$cont.'\','.LE;
       }
     }
-
-    $ret .= IND2.');'.LE; // close CSS array
-    $ret .= LE;
 
     return $ret;
   }
@@ -166,14 +205,8 @@ class Leim
       foreach ($files as $file)
       {
         $cont = file_get_contents($file);
-        /*
-        preg_match_all("/\<\?php\s(.*)\s\?>/m", $cont, $match, PREG_SET_ORDER);
-        var_dump($match);
-        $cont = $match[0];
-        */
-
-        $cont = str_replace('<?php', '', $cont);
-        $cont = str_replace('?>', '', $cont);
+        preg_match_all("/<\?php(.*)\?>/ms", $cont, $match, PREG_SET_ORDER);
+        $cont = $match[0][1];
         $cont = trim($cont);
 
         $ret .= $cont;
@@ -187,9 +220,8 @@ class Leim
   public function run()
   {
     $this->addAssets();
-    $this->add('php');
-    $this->add('css');
-    $this->add('js');
+    $this->add('.', array('php', 'css', 'js'));
+    $this->add('./assets', array('gif', 'png'));
     $this->dump();
   }
 
@@ -197,18 +229,26 @@ class Leim
   {
     $ret = '<?php'.LE.LE;
 
-    $ret .= $this->writePHPFiles('php');
-    $ret .= $this->openRSC();
-    $ret .= $this->writeAssets();
-    $ret .= $this->writeStyleVars();
+    $ret .= $this->writePHPFiles();
+
+    $ret .= $this->openRscClass();
+    $ret .= $this->writeAssets(array('gif', 'png'));
+    $ret .= $this->openRscCSS();
+    $ret .= $this->writeStyleVars(array('gif', 'png'));
     $ret .= $this->writeStyleFiles();
+    $ret .= $this->closeRscCSS();
     $ret .= $this->writeJsFiles();
-    $ret .= $this->closeRSC();
+    $ret .= $this->closeRscClass();
 
     $ret .= 'var_dump(RSC::$css);';
 
     $ret .= LE.'?>'.LE;
     file_put_contents($this->outF, $ret);
+  }
+
+  public function log($str)
+  {
+    echo $str.LE;
   }
 
 }
