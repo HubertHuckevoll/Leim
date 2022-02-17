@@ -283,7 +283,7 @@ class Leim
 $l = new Leim();
 $l->add('.', array('php', 'css', 'js'));
 $l->add('./assets', array('gif', 'png'));
-$l->setFilesToEncode(array('png'));
+//$l->setFilesToEncode(array('png'));
 $l->run();
 
 ?>
