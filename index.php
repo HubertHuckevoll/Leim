@@ -1,5 +1,6 @@
 <?php
 
+
 namespace view\generic\page;
 class articleVP extends talVP
 {
@@ -33,36 +34,8 @@ class articleVP extends talVP
   }
 }
 
-namespace view\generic\page;
-class searchVP extends talVP
-{
-  // dont't add these to the constructor.
-  // all views should have the same construction api
-  // so we can instantiate them programmatically
-  public $articleHook = '';
 
-  /**
-   * render cbBox
-   * ________________________________________________________________
-   */
-  protected function mainContent()
-  {
-    $pv = new \cb\view\fragment\cbSearchVF($this->ep, $this->hook, $this->linker);
-    $pv->data = $this->data['results'];
 
-    return $pv->render();
-  }
-
-  /**
-   * render cbBox
-   * ________________________________________________________________
-   */
-  public function drawAjax()
-  {
-    echo $this->mainContent();
-  }
-
-}
 
 namespace view\generic\page;
 class gaestebuchVP extends talVP
@@ -114,6 +87,9 @@ class gaestebuchVP extends talVP
   }
 }
 
+
+
+
 namespace view\generic\page;
 class galleryVP extends talVP
 {
@@ -135,6 +111,9 @@ class galleryVP extends talVP
     return $pv->render();
   }
 }
+
+
+
 
 namespace view\generic\page;
 class contactVP extends talVP
@@ -174,6 +153,9 @@ class contactVP extends talVP
   }
 }
 
+
+
+
 namespace view\generic\page;
 class indexVP extends talVP
 {
@@ -192,6 +174,9 @@ class indexVP extends talVP
     return $pv->render();
   }
 }
+
+
+
 
 namespace view\generic\page;
 class schlaglVP extends talVP
@@ -226,6 +211,9 @@ class schlaglVP extends talVP
   }
 }
 
+
+
+
 namespace view\generic\page;
 class sidebarVP extends \cb\view\page\cbPageVP
 {
@@ -242,6 +230,10 @@ class sidebarVP extends \cb\view\page\cbPageVP
   }
 
 }
+
+
+
+
 
 error_reporting(E_ALL ^ E_NOTICE);
 require_once($_SERVER["DOCUMENT_ROOT"].'/cardboard/cbLoader.php');
@@ -274,8 +266,12 @@ $k->start(function($payload)
 
 echo '</pre>';
 
-require($_SERVER['DOCUMENT_ROOT'].'/cardboard/helpers.php');
+
+
+
+  require($_SERVER['DOCUMENT_ROOT'].'/cardboard/helpers.php');
   redirect('');
+
 
 namespace
 {
@@ -294,396 +290,6 @@ namespace
   --biggrin: data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABEAAAARCAMAAAAMs7fIAAAAA3NCSVQICAjb4U/gAAAA1VBMVEX////XshTVrQrXqwDTqADTsBjVrQrTqADTsBjVrQrTqADTsBjUrg/VrQrTqAD//////5n/+or/+IP/9Xv/8nLr6+v/8Gz/7mT/613/6Vf/51H/5Un/40P/4T/+3jn/3TL/2yz/2Sf/1yH41zD51ir/1Rv/0hL10CXvzzD9zw/5zhPxzCH0yxfqyy/2yArzxw/uyBrlxCfpwhjrwRHuwAfkvx26urrmvRLmuwrkuAnktwTOpwuLeyGLeBqLdBCLcwxmZjNlXyllXSZlWyBlWRllVQ9lUwhSeUxkAAAAR3RSTlMAEREREVVVVWZmZnd3d3f//////////////////////////////////////////////////////////////////////////4CyhhwAAAAJcEhZcwAACvAAAArwAUKsNJgAAAAfdEVYdFNvZnR3YXJlAE1hY3JvbWVkaWEgRmlyZXdvcmtzIDi1aNJ4AAAA5ElEQVQYlT2Q6VLCQBCER4kXSEYh5NosMSCCigeKeDQK2Wzy/o/kLFh21fzor6anqodIdNCBU7dFfzoCFtPr6RtwsgcdzIZa62FevMB34BTjTKWpUjov5mjLDcyy1Jg4Tiqbj17RkoxWJgrK0CTKFhPJ4SFLoqDX64dxqq8mHyCMVRL2Ly96QeTIo5DcVuVWVJrK1j+3bscOmLfMbJgHjdtZrFfMpZCKebX5Ap0jX+8cW2YJ+XSI+2/rnEzdLOERnQmqHakdaLsaXTyPalFzs9z3IjoG3ud3T5//3Yk8f/cf33PmFze+Jo/YnJCUAAAAAElFTkSuQmCC;
 }
 CSSVAR,
-      'style' => <<< 'CSSFILE'
-:root {
-  --anchor-color: rgb(204, 51, 51);
-  --anchor-color-lookalike: rgb(170, 17, 17);
-  --frame-color: rgb(148, 148, 148);
-  --dark-bg: rgba(153, 153, 153, .6);
-  --light-bg: rgba(221, 221, 221, .8);
-  --dark-headline: rgb(77, 77, 77);
-  --light-headline: rgb(255, 255, 255);
-  --light-text: rgb(255, 255, 255);
-  --dark-text: rgb(26, 26, 26);
-}
-
-html
-{
-  padding: 0;
-  margin: 0;
-  font-size: 100%;
-  line-height: 150%;
-}
-
-body
-{
-  margin: 0;
-  width: 1140px;
-  margin-right: auto;
-  margin-left: auto;
-  color: var(--dark-text);
-  font-family: Verdana, Arial, Helvetica, sans-serif;
-}
-
-ul
-{
-  margin: 0;
-  margin-bottom: 5px;
-  margin-top: 5px;
-}
-
-li
-{
-  list-style-type: disc;
-  padding-left: 10px;
-  margin-left: 20px;
-}
-
-/* Headings */
-h1, h2, h3, h4, h5, h6
-{
-  font-weight: normal;
-}
-
-acronym
-{
-  cursor: help;
-}
-
-/* Standard Link Styles ----------------------------------------------------------*/
-a, a:active
-{
-  color: var(--anchor-color);
-  text-decoration: none;
-  cursor: pointer;
-}
-
-a:hover, a:active:hover, a:visited:hover
-{
-  text-decoration: underline;
-}
-
-/* Page Banner Styles ----------------------------------------------------------*/
-#banner
-{
-  margin-top: 1.5%;
-}
-
-#banner h1
-{
-  color: var(--anchor-color);
-  margin: 0px;
-  font-size: 2rem;
-}
-
-#banner h2
-{
-  color: var(--dark-headline);
-  margin-bottom: 15px;
-  font-size: 1.1rem;
-  font-weight: bold;
-}
-
-/* Navigation Bar ----------------------------------------------------------*/
-#navigation
-{
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 30px;
-  background: linear-gradient(0deg, var(--dark-bg), var(--light-bg));
-}
-
-#linkBox
-{}
-
-/* Navigation Link Styles */
-#linkBox a, #linkBox a:active, #linkBox a:visited
-{
-  display: inline-block;
-  text-decoration: none;
-  padding-left: 7px;
-  padding-right: 7px;
-  border-left: 1px solid var(--light-bg);
-  border-right: 1px solid var(--dark-bg);
-  color: var(--dark-text);
-  background-color: transparent;
-  height: 35px;
-  line-height: 35px;
-  font-weight: bold;
-}
-
-#linkBox a:hover, #linkBox a:visited:hover
-{
-  color: var(--anchor-color-lookalike); /* miracles of perception: to appear somewhat like #CC3333, this needs to be #AA1111*/
-}
-
-/* Search Styles  ----------------------------------------------------------*/
-#searchBox {
-  margin-right: 5px;
-}
-
-#searchBox button {
-  font-size: .7rem;
-}
-
-/* Main Content _____________________________________________________*/
-main
-{
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-}
-
-/* Sidebar ----------------------------------------------------------*/
-#sidebar
-{
-  margin: 0px;
-  padding: 0px;
-  width: 35%;
-  hyphens: auto;
-}
-
-#sidebar a, #sidebar a:active, #sidebar a:visited
-{
-  color: var(--dark-text);
-  font-weight: bold;
-  text-decoration: none;
-}
-
-#sidebar a img
-{
-}
-
-#sidebar a:hover, #sidebar a:hover:active
-{
-  color: var(--dark-text);
-  text-decoration: underline;
-}
-
-.sidebarMenuBox
-{
-  padding: 0px;
-  border: 1px solid var(--dark-bg);
-  margin-bottom: 20px;
-  height: 100%;
-  background-color: var(--light-bg);
-  background-image: url(../img/sidebarBG.gif);
-  background-repeat: no-repeat;
-  background-attachment: scroll;
-  background-size: cover;
-}
-
-.sidebarMenuBoxContent
-{
-  padding: 4px;
-}
-
-#hotStuffBox .sidebarMenuBoxContent
-{
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-evenly;
-  align-items: center;
-}
-
-.sidebarMenuBox h3
-{
-  text-align: center;
-  height: 30px;
-  line-height: 30px;
-  margin: 0px;
-  font-size: 0.95rem;
-  font-weight: bold;
-  color: var(--dark-headline);
-  background: linear-gradient(0deg, var(--dark-bg), var(--light-bg));
-}
-
-.sidebarMenuBox li, ul
-{
-  list-style-type: none;
-  padding: 0px;
-  margin: 0px;
-  margin-bottom: 3px;
-  margin-top: 3px;
-  margin-left: 3px;
-}
-
-.sidebarMenuContentBox
-{
-  text-align: left;
-  padding: 5px;
-  clear: both;
-}
-
-.sidebarMenuContentBox .abcArticleOverviewAbstractMoreLink
-{
-  display: inline;
-  margin: 0px;
-  padding: 0px;
-}
-
-/**
- * cbArticleTeasersVF
- * __________________________________________________________________
- */
-figure.cbArticleTeaser
-{
-  width: 30%;
-}
-
-figure .cbArticleTeaserImg
-{
-  width: 100%;
-}
-
-/* Content ----------------------------------------------------------*/
-#content
-{
-  width: 60%;
-  background-repeat: no-repeat;
-  background-attachment: scroll;
-  background-position: left bottom;
-  hyphens: auto;
-}
-
-.abcArticleOverviewCont
-{
-  /*
-  padding: 10px;
-  box-shadow: 2px 2px 5px var(--dark-bg);
-  */
-}
-
-.abcArticleOverviewDate
-{
-  display: none;
-}
-
-.abcArticleOverviewImg img
-{
-  box-shadow: 2px 2px 5px var(--dark-bg);
-}
-
-.TAL-articles .articleParagraphImg {
-  margin-top: 7px;
-}
-
-.TAL-articles .articleParagraph {
-  margin-bottom: 20px;
-}
-
-.TAL-pages .articleParagraphText {
-  margin-bottom: 10px;
-}
-
-.TAL-pages .articleDate {
-  display: none;
-}
-
-#content table
-{
-  margin-top: 20px;
-  border: 1px solid var(--frame-color);
-  margin-bottom: 25px;
-  clear: both;
-}
-
-#content table th
-{
-  background-color: var(--light-bg);
-  padding: 0px;
-  padding: 4px;
-  text-align: left;
-  font-weight: bold;
-  border-bottom: 1px solid var(--frame-color);
-  vertical-align: top;
-  font-size: 0.9rem;
-}
-
-#content table td
-{
-  background-color: var(--light-bg);
-  vertical-align: top;
-  width: 25%;
-  text-align: left;
-  padding: 5px;
-  font-size: 0.8rem;
-  line-height: 0.1rem;
-}
-
-#pageHeadline
-{
-  border-bottom: 1px solid var(--light-bg);
-  font-size: 1.1rem;
-  font-weight: bold;
-  margin-bottom: 20px;
-  padding-bottom: 10px;
-  padding-top: 10px;
-}
-
-.Schlaglichter .articleParagraphImgCont {
-  display: none;
-}
-
-#schlagl {
- padding: 10px;
- text-align: center;
-}
-
-#schlagl div {
-  margin-bottom: 10px;
-  margin-top: 10px;
-  font-style: italic;
-}
-
-#schlagl img {
-  box-shadow: 2px 2px 5px var(--dark-bg);
-  max-width: 100%;
-}
-
-#schlagl img:hover {
-  cursor: pointer;
-}
-
-#schlagl #slideStatus {
-  text-align: center;
-  font-size: .8rem;
-}
-
-.TAL-downloads .abcArticleOverviewCont
-{
-  clear: both;
-  display: list-item;
-  margin-left: 25px;
-}
-
-/* footer styles ----------------------------------------------------------*/
-#footer
-{
-  display: flex;
-  margin-top: 10px;
-  margin-bottom: 10px;
-  padding-top: 10px;
-  border-top: 1px solid var(--light-bg);
-  font-size: 0.8rem;
-  line-height: 1.35rem;
-  color: var(--dark-bg);
-  justify-content: space-between;
-  hyphens: auto;
-}
-
-#footerLeft
-{
-  text-align: left;
-  padding-bottom: 20px;
-}
-
-#footerRight
-{
-  text-align: right;
-}
-CSSFILE,
     );
 
     public static $js = array(
@@ -1298,7 +904,14 @@ let Events =
 JSCODE,
     );
   }
+
+
+  require($_SERVER['DOCUMENT_ROOT'].'/cardboard/helpers.php');
+  redirect('');
+
+
 }
+
 
 var_dump(RSC::$css);
 

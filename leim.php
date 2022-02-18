@@ -13,10 +13,15 @@ class Leim
   public $filesToEncode = array('gif', 'png', 'jpg', 'webp');
   public $encFilesCache = array();
   public $files = array();
+  public $mainF = '';
   public $outF = '';
 
-  public function __construct($outF = 'index.php')
+  /**
+   * Input
+   */
+  public function __construct($mainF = 'main.php', $outF = 'index.php')
   {
+    $this->mainF = $mainF;
     $this->outF = $outF;
   }
 
@@ -39,6 +44,7 @@ class Leim
             ($filename != '.') &&
             ($filename != '..') &&
             (basename($filename) != $this->outF) &&
+            (basename($filename) != $this->mainF) &&
             (basename($filename) != basename(__FILE__))
          )
       {
@@ -50,6 +56,9 @@ class Leim
     return $ret;
   }
 
+  /**
+   * Processing and helpers
+   */
   public function openPHP()
   {
     $ret  = '';
@@ -68,11 +77,18 @@ class Leim
     return $ret;
   }
 
-  public function openRscClass()
+  public function openRootNamespace()
   {
     $ret  = '';
     $ret .= 'namespace'.LE;
     $ret .= '{'.LE;
+
+    return $ret;
+  }
+
+  public function openRscClass()
+  {
+    $ret  = '';
     $ret .= IND1.'class RSC'.LE;
     $ret .= IND1.'{'.LE;
 
@@ -83,7 +99,16 @@ class Leim
   {
     $ret  = '';
     $ret .= IND1.'}'.LE; // class
+    $ret .= LE;
+
+    return $ret;
+  }
+
+  public function closeRootNamespace()
+  {
+    $ret  = '';
     $ret .= '}'.LE; // namespace
+    $ret .= LE;
 
     return $ret;
   }
@@ -116,7 +141,7 @@ class Leim
     else
     {
       $mime = strtolower(mime_content_type($file)); // return mime type ala mimetype extension
-      $content = base64_encode(file_get_contents($file));
+      $content = base64_encode($this->readFile($file));
       $ret = 'data:'.$mime.';base64,'.$content;
       $this->encFilesCache[$file] = $ret;
     }
@@ -129,49 +154,104 @@ class Leim
     return pathinfo($file, PATHINFO_FILENAME);
   }
 
-  public function writeAssets()
+  public function readFile($file)
   {
-    $ret  = '';
-    $ret .= IND2.'public static $assets = array('.LE;
-    foreach($this->filesToEncode as $ext)
+    $ret = '';
+
+    if (file_exists($file))
     {
-      if (isset($this->files[$ext]))
+      $ret = trim(file_get_contents($file));
+    }
+
+    return $ret;
+  }
+
+  public function readPHPFile($file)
+  {
+    $ret = '';
+
+    $cont = $this->readFile($file);
+    if ($cont != '');
+    {
+      preg_match_all("/<\?php(.*)\?>/ms", $cont, $match, PREG_SET_ORDER);
+      $cont = $match[0][1];
+      //$cont = trim($cont);
+
+      $ret .= $cont.LE;
+      $ret .= LE;
+    }
+
+    return $ret;
+  }
+
+  public function log($str)
+  {
+    echo $str.LE;
+  }
+
+  public function walkFiles($ext, $workerFunc)
+  {
+    $ret = '';
+
+    if (isset($this->files[$ext]))
+    {
+      foreach ($this->files[$ext] as $path => $files)
       {
-        foreach ($this->files[$ext] as $path => $files)
+        if (count($files) > 0)
         {
           foreach($files as $file)
           {
-            $varName = $this->file2VarName($file);
-            $ret .= IND3.'\''.$varName.'\' => \''.$this->file2DataURI($file).'\','.LE;
+            $ret .= $workerFunc($file);
           }
         }
       }
     }
+
+    return $ret;
+  }
+
+  /**
+   * Output
+   */
+  public function renderAssets()
+  {
+    $ret  = '';
+    $ret .= IND2.'public static $assets = array('.LE;
+
+    if (count($this->filesToEncode) > 0)
+    {
+      foreach($this->filesToEncode as $ext)
+      {
+        $ret .= $this->walkFiles($ext, function($file)
+        {
+          $varName = $this->file2VarName($file);
+          return IND3.'\''.$varName.'\' => \''.$this->file2DataURI($file).'\','.LE;
+        });
+      }
+    }
+
     $ret .= IND2.');'.LE;
     $ret .= LE;
 
     return $ret;
   }
 
-  public function writeStyleVars()
+  public function renderStyleVars()
   {
     $ret  = '';
     $ret .= IND3.'\'var\' => <<< \'CSSVAR\''.LE;
     $ret .= '--root'.LE;
     $ret .= '{'.LE;
 
-    foreach($this->filesToEncode as $ext)
+    if (isset($this->filesToEncode))
     {
-      if (isset($this->files[$ext]))
+      foreach($this->filesToEncode as $ext)
       {
-        foreach ($this->files[$ext] as $path => $files)
+        $ret .= $this->walkFiles($ext, function($file)
         {
-          foreach($files as $file)
-          {
-            $varName = $this->file2VarName($file);
-            $ret .= IND1.'--'.$varName.': '.$this->file2DataURI($file).';'.LE;
-          }
-        }
+          $varName = $this->file2VarName($file);
+          return IND1.'--'.$varName.': '.$this->file2DataURI($file).';'.LE;
+        });
       }
     }
 
@@ -181,88 +261,85 @@ class Leim
     return $ret;
   }
 
-  public function writeStyleFiles()
+  public function renderStyleFiles()
   {
-    $ret = '';
+    $ret  = '';
 
-    foreach($this->files['css'] as $path => $files)
+    $ret .= $this->walkFiles('css', function($file)
     {
-      if (count($this->files['css']) > 0)
-      {
-        foreach($files as $file)
-        {
-          $cont = trim(file_get_contents($file));
-          $ret .= IND3.'\''.$this->file2VarName($file).'\' => <<< \'CSSFILE\''.LE;
-          $ret .= $cont.LE;
-          $ret .= 'CSSFILE,'.LE;
-        }
-      }
-    }
+      $cont = $this->readFile($file);
+      $ret .= IND3.'\''.$this->file2VarName($file).'\' => <<< \'CSSFILE\''.LE;
+      $ret .= $cont.LE;
+      $ret .= 'CSSFILE,'.LE;
+      return $ret;
+    });
 
     return $ret;
   }
 
-  public function writeJsFiles()
+  public function renderJsFiles()
   {
     $ret  = '';
     $ret .= IND2.'public static $js = array('.LE;
-    foreach($this->files['js'] as $path => $files)
+
+    $ret .= $this->walkFiles('js', function($file)
     {
-      if (count($this->files['js']) > 0)
-      {
-        foreach ($files as $file)
-        {
-          $cont = trim(file_get_contents($file));
-          $ret .= IND3.'\''.$this->file2VarName($file).'\' => <<< \'JSCODE\''.LE;
-          $ret .= $cont.LE;
-          $ret .= 'JSCODE,'.LE;
-        }
-      }
-    }
+      $str  = '';
+      $cont = $this->readFile($file);
+      $str .= IND3.'\''.$this->file2VarName($file).'\' => <<< \'JSCODE\''.LE;
+      $str .= $cont.LE;
+      $str .= 'JSCODE,'.LE;
+      return $str;
+    });
+
     $ret .= IND2.');'.LE; // close CSS array
 
     return $ret;
   }
 
-  public function writePHPFiles()
+  public function renderPHPFiles()
   {
     $ret = '';
 
-    foreach($this->files['php'] as $path => $files)
+    $ret .= $this->walkFiles('php', function($file)
     {
-      if (count($this->files['php']) > 0)
-      {
-        foreach ($files as $file)
-        {
-          $cont = file_get_contents($file);
-          preg_match_all("/<\?php(.*)\?>/ms", $cont, $match, PREG_SET_ORDER);
-          $cont = $match[0][1];
-          $cont = trim($cont);
-
-          $ret .= $cont;
-          $ret .= LE.LE;
-        }
-      }
-    }
+      return $this->readPHPFile($file);
+    });
 
     return $ret;
   }
 
+  public function renderMainPHP()
+  {
+    $ret = '';
+    $ret = $this->readPHPFile($this->mainF);
+
+    return $ret;
+  }
+
+  /**
+   *  Controller
+   */
   public function run()
   {
     $ret  = '';
 
     $ret .= $this->openPHP();
-    $ret .= $this->writePHPFiles();
+    $ret .= $this->renderPHPFiles();
+
+    $ret .= $this->openRootNamespace();
 
     $ret .= $this->openRscClass();
-    $ret .= $this->writeAssets();
+    $ret .= $this->renderAssets();
     $ret .= $this->openStyleMemberVar();
-    $ret .= $this->writeStyleVars();
-    $ret .= $this->writeStyleFiles();
+    $ret .= $this->renderStyleVars();
+    $ret .= $this->renderStyleFiles();
     $ret .= $this->closeStyleMemberVar();
-    $ret .= $this->writeJsFiles();
+    $ret .= $this->renderJsFiles();
     $ret .= $this->closeRscClass();
+
+    $ret .= $this->renderMainPHP();
+    $ret .= $this->closeRootNamespace();
 
     $ret .= LE;
     $ret .= 'var_dump(RSC::$css);'.LE;
@@ -273,15 +350,11 @@ class Leim
     file_put_contents($this->outF, $ret);
   }
 
-  public function log($str)
-  {
-    echo $str.LE;
-  }
-
 }
 
 $l = new Leim();
-$l->add('.', array('php', 'css', 'js'));
+$l->add('.', array('php'));
+$l->add('../frontschweine/js', array('js'));
 $l->add('./assets', array('gif', 'png'));
 //$l->setFilesToEncode(array('png'));
 $l->run();
