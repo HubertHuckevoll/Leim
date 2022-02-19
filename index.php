@@ -59,8 +59,8 @@ JSCODE,
       </style>
     </head>
     <body>
-      <p>Hä?</p>';
-      <img src="$img">';
+      <p>Hä?</p>
+      <img src="$img">
     </body>
   </html>
   HTMCODE;
