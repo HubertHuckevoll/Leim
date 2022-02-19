@@ -1,4 +1,3 @@
 <?php
-  require($_SERVER['DOCUMENT_ROOT'].'/cardboard/helpers.php');
-  redirect('');
+  echo '<img src="'.RSC::$assets['avatar'].'">';
 ?>

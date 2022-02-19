@@ -10,27 +10,27 @@ define('IND4', "        ");  // default indent: 8 spaces
 
 class Leim
 {
-  public $filesToEncode = array('gif', 'png', 'jpg', 'webp');
-  public $encFilesCache = array();
-  public $files = array();
+  public $filesToEncode = ['gif', 'png', 'jpg', 'webp'];
+  public $encFilesCache = [];
+  public $files = [];
   public $mainF = '';
   public $outF = '';
 
   /**
    * Input
    */
-  public function __construct($mainF = 'main.php', $outF = 'index.php')
+  public function __construct(string $mainF = 'main.php', string $outF = 'index.php')
   {
     $this->mainF = $mainF;
     $this->outF = $outF;
   }
 
-  public function setFilesToEncode($exts)
+  public function setFilesToEncode(array $exts)
   {
     $this->filesToEncode = $exts;
   }
 
-  public function add($root, $exts)
+  public function addFiles(string $root, array $exts)
   {
     $ret = '';
     $di = new RecursiveDirectoryIterator($root);
@@ -132,7 +132,7 @@ class Leim
     return $ret;
   }
 
-  public function file2DataURI($file)
+  public function file2DataURI(string $file)
   {
     if (isset($this->encFilesCache[$file]))
     {
@@ -149,12 +149,12 @@ class Leim
     return $ret;
   }
 
-  public function file2VarName($file)
+  public function file2VarName(string $file)
   {
     return pathinfo($file, PATHINFO_FILENAME);
   }
 
-  public function readFile($file)
+  public function readFile(string $file)
   {
     $ret = '';
 
@@ -166,7 +166,7 @@ class Leim
     return $ret;
   }
 
-  public function readPHPFile($file)
+  public function readPHPFile(string $file)
   {
     $ret = '';
 
@@ -184,24 +184,30 @@ class Leim
     return $ret;
   }
 
-  public function log($str)
+  public function log(string $str)
   {
     echo $str.LE;
   }
 
-  public function walkFiles($ext, $workerFunc)
+  public function walkFiles($exts, callable $workerFunc)
   {
     $ret = '';
 
-    if (isset($this->files[$ext]))
+    if (count($exts) > 0)
     {
-      foreach ($this->files[$ext] as $path => $files)
+      foreach($exts as $ext)
       {
-        if (count($files) > 0)
+        if (isset($this->files[$ext]))
         {
-          foreach($files as $file)
+          foreach ($this->files[$ext] as $path => $files)
           {
-            $ret .= $workerFunc($file);
+            if (count($files) > 0)
+            {
+              foreach($files as $file)
+              {
+                $ret .= $workerFunc($file);
+              }
+            }
           }
         }
       }
@@ -218,17 +224,11 @@ class Leim
     $ret  = '';
     $ret .= IND2.'public static $assets = array('.LE;
 
-    if (count($this->filesToEncode) > 0)
+    $ret .= $this->walkFiles($this->filesToEncode, function($file)
     {
-      foreach($this->filesToEncode as $ext)
-      {
-        $ret .= $this->walkFiles($ext, function($file)
-        {
-          $varName = $this->file2VarName($file);
-          return IND3.'\''.$varName.'\' => \''.$this->file2DataURI($file).'\','.LE;
-        });
-      }
-    }
+      $varName = $this->file2VarName($file);
+      return IND3.'\''.$varName.'\' => \''.$this->file2DataURI($file).'\','.LE;
+    });
 
     $ret .= IND2.');'.LE;
     $ret .= LE;
@@ -243,17 +243,11 @@ class Leim
     $ret .= '--root'.LE;
     $ret .= '{'.LE;
 
-    if (isset($this->filesToEncode))
+    $ret .= $this->walkFiles($this->filesToEncode, function($file)
     {
-      foreach($this->filesToEncode as $ext)
-      {
-        $ret .= $this->walkFiles($ext, function($file)
-        {
-          $varName = $this->file2VarName($file);
-          return IND1.'--'.$varName.': '.$this->file2DataURI($file).';'.LE;
-        });
-      }
-    }
+      $varName = $this->file2VarName($file);
+      return IND1.'--'.$varName.': '.$this->file2DataURI($file).';'.LE;
+    });
 
     $ret .= '}'.LE;
     $ret .= 'CSSVAR,'.LE;
@@ -265,7 +259,7 @@ class Leim
   {
     $ret  = '';
 
-    $ret .= $this->walkFiles('css', function($file)
+    $ret .= $this->walkFiles(['css'], function($file)
     {
       $cont = $this->readFile($file);
       $ret .= IND3.'\''.$this->file2VarName($file).'\' => <<< \'CSSFILE\''.LE;
@@ -282,7 +276,7 @@ class Leim
     $ret  = '';
     $ret .= IND2.'public static $js = array('.LE;
 
-    $ret .= $this->walkFiles('js', function($file)
+    $ret .= $this->walkFiles(['js'], function($file)
     {
       $str  = '';
       $cont = $this->readFile($file);
@@ -301,7 +295,7 @@ class Leim
   {
     $ret = '';
 
-    $ret .= $this->walkFiles('php', function($file)
+    $ret .= $this->walkFiles(['php'], function($file)
     {
       return $this->readPHPFile($file);
     });
@@ -341,10 +335,6 @@ class Leim
     $ret .= $this->renderMainPHP();
     $ret .= $this->closeRootNamespace();
 
-    $ret .= LE;
-    $ret .= 'var_dump(RSC::$css);'.LE;
-    $ret .= LE;
-
     $ret .= $this->closePHP();
 
     file_put_contents($this->outF, $ret);
@@ -353,10 +343,8 @@ class Leim
 }
 
 $l = new Leim();
-$l->add('.', array('php'));
-$l->add('../frontschweine/js', array('js'));
-$l->add('./assets', array('gif', 'png'));
-//$l->setFilesToEncode(array('png'));
+$l->addFiles('.', ['php']);
+$l->addFiles('./assets', ['gif', 'png']);
 $l->run();
 
 ?>
