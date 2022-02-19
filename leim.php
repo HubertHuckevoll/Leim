@@ -77,6 +77,7 @@ class Leim
     return $ret;
   }
 
+  /*
   public function openRootNamespace() : string
   {
     $ret  = '';
@@ -85,12 +86,13 @@ class Leim
 
     return $ret;
   }
+  */
 
   public function openRscClass() : string
   {
     $ret  = '';
-    $ret .= IND1.'class RSC'.LE;
-    $ret .= IND1.'{'.LE;
+    $ret .= 'class RSC'.LE;
+    $ret .= '{'.LE;
 
     return $ret;
   }
@@ -98,12 +100,13 @@ class Leim
   public function closeRscClass() : string
   {
     $ret  = '';
-    $ret .= IND1.'}'.LE; // class
+    $ret .= '}'.LE; // class
     $ret .= LE;
 
     return $ret;
   }
 
+  /*
   public function closeRootNamespace() : string
   {
     $ret  = '';
@@ -112,12 +115,13 @@ class Leim
 
     return $ret;
   }
+  */
 
   public function openStyleMemberVar() : string
   {
     // open CSS array
     $ret  = '';
-    $ret .= IND2.'public static $css = array('.LE;
+    $ret .= 'public static $css = array('.LE;
 
     return $ret;
   }
@@ -126,7 +130,7 @@ class Leim
   {
     // close CSS array
     $ret  = '';
-    $ret .= IND2.');'.LE;
+    $ret .= ');'.LE;
     $ret .= LE;
 
     return $ret;
@@ -222,15 +226,15 @@ class Leim
   public function renderAssets() : string
   {
     $ret  = '';
-    $ret .= IND2.'public static $assets = array('.LE;
+    $ret .= 'public static $assets = array('.LE;
 
     $ret .= $this->walkFiles($this->filesToEncode, function($file)
     {
       $varName = $this->file2VarName($file);
-      return IND3.'\''.$varName.'\' => \''.$this->file2DataURI($file).'\','.LE;
+      return '\''.$varName.'\' => \''.$this->file2DataURI($file).'\','.LE;
     });
 
-    $ret .= IND2.');'.LE;
+    $ret .= ');'.LE;
     $ret .= LE;
 
     return $ret;
@@ -239,14 +243,14 @@ class Leim
   public function renderStyleVars() : string
   {
     $ret  = '';
-    $ret .= IND3.'\'var\' => <<< \'CSSVAR\''.LE;
+    $ret .= '\'var\' => <<< \'CSSVAR\''.LE;
     $ret .= '--root'.LE;
     $ret .= '{'.LE;
 
     $ret .= $this->walkFiles($this->filesToEncode, function($file)
     {
       $varName = $this->file2VarName($file);
-      return IND1.'--'.$varName.': '.$this->file2DataURI($file).';'.LE;
+      return '--'.$varName.': '.$this->file2DataURI($file).';'.LE;
     });
 
     $ret .= '}'.LE;
@@ -258,14 +262,13 @@ class Leim
   public function renderStyleFiles() : string
   {
     $ret  = '';
-
     $ret .= $this->walkFiles(['css'], function($file)
     {
       $str  = '';
-      $cont = $this->readFile($file);
-      $str .= IND3.'\''.$this->file2VarName($file).'\' => <<< \'CSSFILE\''.LE;
-      $str .= $cont.LE;
+      $str .= '\''.$this->file2VarName($file).'\' => <<< \'CSSFILE\''.LE;
+      $str .= $this->readFile($file).LE;
       $str .= 'CSSFILE,'.LE;
+
       return $str;
     });
 
@@ -275,19 +278,20 @@ class Leim
   public function renderJsFiles() : string
   {
     $ret  = '';
-    $ret .= IND2.'public static $js = array('.LE;
+    $ret .= 'public static $js = array('.LE;
 
     $ret .= $this->walkFiles(['js'], function($file)
     {
       $str  = '';
-      $cont = $this->readFile($file);
-      $str .= IND3.'\''.$this->file2VarName($file).'\' => <<< \'JSCODE\''.LE;
-      $str .= $cont.LE;
+      $str .= '\''.$this->file2VarName($file).'\' => <<< \'JSCODE\''.LE;
+      $str .= $this->readFile($file).LE;
       $str .= 'JSCODE,'.LE;
+
       return $str;
     });
 
-    $ret .= IND2.');'.LE; // close CSS array
+    $ret .= ');'.LE; // close JS array
+    $ret .= LE;
 
     return $ret;
   }
@@ -323,7 +327,7 @@ class Leim
 
     $ret .= $this->renderPHPFiles();
 
-    $ret .= $this->openRootNamespace();
+    // $ret .= $this->openRootNamespace();
 
     $ret .= $this->openRscClass();
     $ret .= $this->renderAssets();
@@ -336,7 +340,7 @@ class Leim
 
     $ret .= $this->renderMainPHP();
 
-    $ret .= $this->closeRootNamespace();
+    // $ret .= $this->closeRootNamespace();
 
     $ret .= $this->closePHP();
 
@@ -347,6 +351,7 @@ class Leim
 
 $l = new Leim();
 $l->addFiles('.', ['php']);
+$l->addFiles('./js', ['js']);
 $l->addFiles('./css', ['css']);
 $l->addFiles('./assets', ['gif', 'png']);
 $l->run();
