@@ -319,6 +319,7 @@ class Leim
     $ret  = '';
 
     $ret .= $this->openPHP();
+
     $ret .= $this->renderPHPFiles();
 
     $ret .= $this->openRootNamespace();
@@ -333,6 +334,7 @@ class Leim
     $ret .= $this->closeRscClass();
 
     $ret .= $this->renderMainPHP();
+
     $ret .= $this->closeRootNamespace();
 
     $ret .= $this->closePHP();
