@@ -25,12 +25,12 @@ class Leim
     $this->outF = $outF;
   }
 
-  public function setFilesToEncode(array $exts)
+  public function setFilesToEncode(array $exts) : void
   {
     $this->filesToEncode = $exts;
   }
 
-  public function addFiles(string $root, array $exts)
+  public function addFiles(string $root, array $exts) : string
   {
     $ret = '';
     $di = new RecursiveDirectoryIterator($root);
@@ -59,7 +59,7 @@ class Leim
   /**
    * Processing and helpers
    */
-  public function openPHP()
+  public function openPHP() : string
   {
     $ret  = '';
     $ret .= '<?php'.LE;
@@ -68,7 +68,7 @@ class Leim
     return $ret;
   }
 
-  public function closePHP()
+  public function closePHP() : string
   {
     $ret  = '';
     $ret .= LE;
@@ -77,7 +77,7 @@ class Leim
     return $ret;
   }
 
-  public function openRootNamespace()
+  public function openRootNamespace() : string
   {
     $ret  = '';
     $ret .= 'namespace'.LE;
@@ -86,7 +86,7 @@ class Leim
     return $ret;
   }
 
-  public function openRscClass()
+  public function openRscClass() : string
   {
     $ret  = '';
     $ret .= IND1.'class RSC'.LE;
@@ -95,7 +95,7 @@ class Leim
     return $ret;
   }
 
-  public function closeRscClass()
+  public function closeRscClass() : string
   {
     $ret  = '';
     $ret .= IND1.'}'.LE; // class
@@ -104,7 +104,7 @@ class Leim
     return $ret;
   }
 
-  public function closeRootNamespace()
+  public function closeRootNamespace() : string
   {
     $ret  = '';
     $ret .= '}'.LE; // namespace
@@ -113,7 +113,7 @@ class Leim
     return $ret;
   }
 
-  public function openStyleMemberVar()
+  public function openStyleMemberVar() : string
   {
     // open CSS array
     $ret  = '';
@@ -122,7 +122,7 @@ class Leim
     return $ret;
   }
 
-  public function closeStyleMemberVar()
+  public function closeStyleMemberVar() : string
   {
     // close CSS array
     $ret  = '';
@@ -132,7 +132,7 @@ class Leim
     return $ret;
   }
 
-  public function file2DataURI(string $file)
+  public function file2DataURI(string $file) : string
   {
     if (isset($this->encFilesCache[$file]))
     {
@@ -149,12 +149,12 @@ class Leim
     return $ret;
   }
 
-  public function file2VarName(string $file)
+  public function file2VarName(string $file) : string
   {
     return pathinfo($file, PATHINFO_FILENAME);
   }
 
-  public function readFile(string $file)
+  public function readFile(string $file) : string
   {
     $ret = '';
 
@@ -166,7 +166,7 @@ class Leim
     return $ret;
   }
 
-  public function readPHPFile(string $file)
+  public function readPHPFile(string $file) : string
   {
     $ret = '';
 
@@ -184,12 +184,12 @@ class Leim
     return $ret;
   }
 
-  public function log(string $str)
+  public function log(string $str) : void
   {
     echo $str.LE;
   }
 
-  public function walkFiles($exts, callable $workerFunc)
+  public function walkFiles($exts, callable $workerFunc) : string
   {
     $ret = '';
 
@@ -219,7 +219,7 @@ class Leim
   /**
    * Output
    */
-  public function renderAssets()
+  public function renderAssets() : string
   {
     $ret  = '';
     $ret .= IND2.'public static $assets = array('.LE;
@@ -236,7 +236,7 @@ class Leim
     return $ret;
   }
 
-  public function renderStyleVars()
+  public function renderStyleVars() : string
   {
     $ret  = '';
     $ret .= IND3.'\'var\' => <<< \'CSSVAR\''.LE;
@@ -255,7 +255,7 @@ class Leim
     return $ret;
   }
 
-  public function renderStyleFiles()
+  public function renderStyleFiles() : string
   {
     $ret  = '';
 
@@ -271,7 +271,7 @@ class Leim
     return $ret;
   }
 
-  public function renderJsFiles()
+  public function renderJsFiles() : string
   {
     $ret  = '';
     $ret .= IND2.'public static $js = array('.LE;
@@ -291,7 +291,7 @@ class Leim
     return $ret;
   }
 
-  public function renderPHPFiles()
+  public function renderPHPFiles() : string
   {
     $ret = '';
 
@@ -303,7 +303,7 @@ class Leim
     return $ret;
   }
 
-  public function renderMainPHP()
+  public function renderMainPHP() : string
   {
     $ret = '';
     $ret = $this->readPHPFile($this->mainF);
@@ -314,7 +314,7 @@ class Leim
   /**
    *  Controller
    */
-  public function run()
+  public function run() : void
   {
     $ret  = '';
 
