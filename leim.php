@@ -10,7 +10,7 @@ define('IND4', "        ");  // default indent: 8 spaces
 
 class Leim
 {
-  public $filesToEncode = ['gif', 'png', 'jpg', 'webp'];
+  public $filesToEncode = ['gif', 'png', 'jpg', 'webp', 'svg'];
   public $encFilesCache = [];
   public $files = [];
   public $mainF = '';
@@ -59,82 +59,6 @@ class Leim
   /**
    * Processing and helpers
    */
-  public function openPHP() : string
-  {
-    $ret  = '';
-    $ret .= '<?php'.LE;
-    $ret .= LE;
-
-    return $ret;
-  }
-
-  public function closePHP() : string
-  {
-    $ret  = '';
-    $ret .= LE;
-    $ret .= '?>';
-
-    return $ret;
-  }
-
-  /*
-  public function openRootNamespace() : string
-  {
-    $ret  = '';
-    $ret .= 'namespace'.LE;
-    $ret .= '{'.LE;
-
-    return $ret;
-  }
-  */
-
-  public function openRscClass() : string
-  {
-    $ret  = '';
-    $ret .= 'class RSC'.LE;
-    $ret .= '{'.LE;
-
-    return $ret;
-  }
-
-  public function closeRscClass() : string
-  {
-    $ret  = '';
-    $ret .= '}'.LE; // class
-    $ret .= LE;
-
-    return $ret;
-  }
-
-  /*
-  public function closeRootNamespace() : string
-  {
-    $ret  = '';
-    $ret .= '}'.LE; // namespace
-    $ret .= LE;
-
-    return $ret;
-  }
-  */
-
-  public function openStyleMemberVar() : string
-  {
-    // open CSS array
-    $ret  = '';
-    $ret .= 'public static $css = array('.LE;
-
-    return $ret;
-  }
-
-  public function closeStyleMemberVar() : string
-  {
-    // close CSS array
-    $ret  = '';
-    $ret .= ');'.LE;
-    $ret .= LE;
-
-    return $ret;
-  }
 
   public function file2DataURI(string $file) : string
   {
@@ -240,6 +164,15 @@ class Leim
     return $ret;
   }
 
+  public function openStyleMemberVar() : string
+  {
+    // open CSS array
+    $ret  = '';
+    $ret .= 'public static $css = array('.LE;
+
+    return $ret;
+  }
+
   public function renderStyleVars() : string
   {
     $ret  = '';
@@ -271,6 +204,16 @@ class Leim
 
       return $str;
     });
+
+    return $ret;
+  }
+
+  public function closeStyleMemberVar() : string
+  {
+    // close CSS array
+    $ret  = '';
+    $ret .= ');'.LE;
+    $ret .= LE;
 
     return $ret;
   }
@@ -315,6 +258,64 @@ class Leim
 
     return $ret;
   }
+
+  public function openPHP() : string
+  {
+    $ret  = '';
+    $ret .= '<?php'.LE;
+    $ret .= LE;
+
+    return $ret;
+  }
+
+  public function closePHP() : string
+  {
+    $ret  = '';
+    $ret .= LE;
+    $ret .= '?>';
+
+    return $ret;
+  }
+
+  public function openRscClass() : string
+  {
+    $ret  = '';
+    $ret .= 'class RSC'.LE;
+    $ret .= '{'.LE;
+
+    return $ret;
+  }
+
+  public function closeRscClass() : string
+  {
+    $ret  = '';
+    $ret .= '}'.LE; // class
+    $ret .= LE;
+
+    return $ret;
+  }
+
+  /*
+  public function openRootNamespace() : string
+  {
+    $ret  = '';
+    $ret .= 'namespace'.LE;
+    $ret .= '{'.LE;
+
+    return $ret;
+  }
+  */
+
+  /*
+  public function closeRootNamespace() : string
+  {
+    $ret  = '';
+    $ret .= '}'.LE; // namespace
+    $ret .= LE;
+
+    return $ret;
+  }
+  */
 
   /**
    *  Controller
