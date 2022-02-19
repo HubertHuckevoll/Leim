@@ -160,7 +160,7 @@ class Leim
 
     if (file_exists($file))
     {
-      $ret = trim(file_get_contents($file));
+      $ret = trim((string) file_get_contents($file));
     }
 
     return $ret;
