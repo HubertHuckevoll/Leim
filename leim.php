@@ -261,11 +261,12 @@ class Leim
 
     $ret .= $this->walkFiles(['css'], function($file)
     {
+      $str  = '';
       $cont = $this->readFile($file);
-      $ret .= IND3.'\''.$this->file2VarName($file).'\' => <<< \'CSSFILE\''.LE;
-      $ret .= $cont.LE;
-      $ret .= 'CSSFILE,'.LE;
-      return $ret;
+      $str .= IND3.'\''.$this->file2VarName($file).'\' => <<< \'CSSFILE\''.LE;
+      $str .= $cont.LE;
+      $str .= 'CSSFILE,'.LE;
+      return $str;
     });
 
     return $ret;
@@ -346,6 +347,7 @@ class Leim
 
 $l = new Leim();
 $l->addFiles('.', ['php']);
+$l->addFiles('./css', ['css']);
 $l->addFiles('./assets', ['gif', 'png']);
 $l->run();
 
