@@ -1,5 +1,15 @@
 <?php
 
+
+  class Test
+  {
+    public function getText()
+    {
+      return "What the actual clusterfuck?";
+    }
+  }
+
+
 class RSC
 {
 public static $assets = array(
@@ -48,6 +58,9 @@ JSCODE,
   $js = RSC::$js['code'];
   $img = RSC::$assets['avatar'];
 
+  $m = new Test();
+  $s = $m->getText();
+
   echo <<< "HTMCODE"
   <html>
     <head>
@@ -59,11 +72,12 @@ JSCODE,
       </style>
     </head>
     <body>
-      <p>Hä?</p>
+      <p>$s</p>
       <img src="$img">
     </body>
   </html>
   HTMCODE;
+
 
 
 

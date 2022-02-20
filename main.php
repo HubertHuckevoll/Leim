@@ -4,6 +4,9 @@
   $js = RSC::$js['code'];
   $img = RSC::$assets['avatar'];
 
+  $m = new Test();
+  $s = $m->getText();
+
   echo <<< "HTMCODE"
   <html>
     <head>
@@ -15,9 +18,10 @@
       </style>
     </head>
     <body>
-      <p>Hä?</p>
+      <p>$s</p>
       <img src="$img">
     </body>
   </html>
   HTMCODE;
+
 ?>
