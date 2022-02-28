@@ -1,7 +1,7 @@
 <?php
 
-  $css = RSC::$css['skin'];
-  $js = RSC::$js['code'];
+  $css = RSC::getCSS();
+  $js = RSC::getJS();
   $img = RSC::$assets['avatar'];
 
   $m = new Test();
@@ -11,10 +11,10 @@
   <html>
     <head>
       <script>
-        $js
+  $js
       </script>
       <style>
-        $css
+  $css
       </style>
     </head>
     <body>

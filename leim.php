@@ -30,9 +30,8 @@ class Leim
     $this->filesToEncode = $exts;
   }
 
-  public function addFiles(string $root, array $exts) : string
+  public function addFiles(string $root, array $exts) : void
   {
-    $ret = '';
     $di = new RecursiveDirectoryIterator($root);
 
     foreach (new RecursiveIteratorIterator($di) as $filename => $file)
@@ -52,8 +51,6 @@ class Leim
         $this->files[$ext][$path][] = $filename;
       }
     }
-
-    return $ret;
   }
 
   /**
@@ -183,7 +180,7 @@ class Leim
     $ret .= $this->walkFiles($this->filesToEncode, function($file)
     {
       $varName = $this->file2VarName($file);
-      return '--'.$varName.': '.$this->file2DataURI($file).';'.LE;
+      return IND1.'--'.$varName.': '.$this->file2DataURI($file).';'.LE;
     });
 
     $ret .= '}'.LE;
@@ -234,6 +231,36 @@ class Leim
     });
 
     $ret .= ');'.LE; // close JS array
+    $ret .= LE;
+
+    return $ret;
+  }
+
+  public function renderHelperFunctions()
+  {
+    $ret = '';
+
+    $ret .= <<< 'PHPCODE'
+    public static function getCSS()
+    {
+      $ret = '';
+      foreach(self::$css as $key => $val)
+      {
+        $ret .= $val."\r\n";
+      }
+      return $ret;
+    }
+
+    public static function getJS()
+    {
+      $ret = '';
+      foreach(self::$js as $key => $val)
+      {
+        $ret .= $val."\r\n";
+      }
+      return $ret;
+    }
+    PHPCODE.LE;
     $ret .= LE;
 
     return $ret;
@@ -337,6 +364,7 @@ class Leim
     $ret .= $this->renderStyleFiles();
     $ret .= $this->closeStyleMemberVar();
     $ret .= $this->renderJsFiles();
+    $ret .= $this->renderHelperFunctions();
     $ret .= $this->closeRscClass();
 
     $ret .= $this->renderMainPHP();
