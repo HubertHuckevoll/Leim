@@ -1,2 +1,2 @@
 # Leim
-A tool for combining all assets of a web app in one single php file.
+A tool for combining all assets (PHP, Images, CSS, JS...) of a PHP app in one single php file.
