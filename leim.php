@@ -307,25 +307,18 @@ class Leim
 
       foreach($namespaces[$no_namespace] as $class)
       {
-        $ret .= $class.LE.LE;
+        $ret .= $class.LE;
       }
 
       $ret .= $rscClassAsString;
 
       $ret .= $this->readPHPFile($this->mainF);
+      $ret .= LE;
 
-      $ret .= '} // end of root namespace'.LE.LE.LE;
+      $ret .= '} // end of root namespace'.LE.LE;
     }
 
     $this->closePHP();
-
-    return $ret;
-  }
-
-  public function renderMainPHP() : string
-  {
-    $ret = '';
-    $ret = $this->readPHPFile($this->mainF);
 
     return $ret;
   }
@@ -360,7 +353,7 @@ class Leim
   public function closeRscClass() : string
   {
     $ret  = '';
-    $ret .= '}'.LE; // class
+    $ret .= '} // end of RSC class'.LE; // class
     $ret .= LE;
 
     return $ret;

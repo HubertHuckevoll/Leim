@@ -1,10 +1,9 @@
 <?php
-
   $css = RSC::getCSS();
   $js = RSC::getJS();
   $img = RSC::$assets['avatar'];
 
-  $m = new Test();
+  $m = new \dummy\Test();
   $s = $m->getText();
 
   echo <<< "HTMCODE"
@@ -23,5 +22,4 @@
     </body>
   </html>
   HTMCODE;
-
 ?>

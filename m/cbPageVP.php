@@ -1,7 +1,7 @@
 <?php
-namespace cb\view\page;
+namespace dummy;
 
-class cbPageVP extends \cb\view\fragment\cbBaseVF
+class cbPageVP
 {
   /**
    * Konstruktor

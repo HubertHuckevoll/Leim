@@ -1,7 +1,7 @@
 <?php
 
-namespace cb\view\page {
-class cbPageVP extends \cb\view\fragment\cbBaseVF
+namespace dummy {
+class cbPageVP
 {
   /**
    * Konstruktor
@@ -140,10 +140,6 @@ class cbPageVP extends \cb\view\fragment\cbBaseVF
 
 }
 
-} // ending namespace "cb\view\page"
-
-
-namespace dummy {
 class Test
   {
     public function getText()
@@ -152,7 +148,7 @@ class Test
     }
   }
 
-} // ending namespace "dummy"
+} // end of namespace "dummy"
 
 
 namespace {
@@ -785,7 +781,7 @@ img
   width: 500px;
 }
 CSSFILE,
-);
+); // close CSS array
 
 public static $js = array(
 'code' => <<< 'JSCODE'
@@ -802,7 +798,7 @@ document.addEventListener('DOMContentLoaded', () => {
   g.greet();
 });
 JSCODE,
-);
+); // close JS array
 
 public static function getCSS()
 {
@@ -824,15 +820,14 @@ public static function getJS()
   return $ret;
 }
 
-}
-
+} // end of RSC class
 
 
   $css = RSC::getCSS();
   $js = RSC::getJS();
   $img = RSC::$assets['avatar'];
 
-  $m = new Test();
+  $m = new \dummy\Test();
   $s = $m->getText();
 
   echo <<< "HTMCODE"
@@ -854,4 +849,5 @@ public static function getJS()
 
 
 
-} // ending root namespace
+} // end of root namespace
+
