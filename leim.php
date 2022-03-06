@@ -209,7 +209,7 @@ class Leim
   {
     // close CSS array
     $ret  = '';
-    $ret .= ');'.LE;
+    $ret .= '); // close CSS array'.LE;
     $ret .= LE;
 
     return $ret;
@@ -230,7 +230,7 @@ class Leim
       return $str;
     });
 
-    $ret .= ');'.LE; // close JS array
+    $ret .= '); // close JS array'.LE; // close JS array
     $ret .= LE;
 
     return $ret;
@@ -266,14 +266,58 @@ class Leim
     return $ret;
   }
 
-  public function renderPHPFiles() : string
+  public function renderPHP($rscClassAsString) : string
   {
     $ret = '';
+    $str = '';
+    $match = array();
+    $namespaces = array();
+    $no_namespace = 'no_namespace';
 
-    $ret .= $this->walkFiles(['php'], function($file)
+    $ret .= $this->openPHP();
+
+    $this->walkFiles(['php'], function($file) use (&$namespaces, $no_namespace)
     {
-      return $this->readPHPFile($file);
+      $str = $this->readPHPFile($file);
+      $namespaceName = (preg_match("/namespace\s(.*);.*(class.*)/mis", $str, $match) == 1) ? $match[1] : $no_namespace;
+      $str = ($namespaceName !== $no_namespace) ? $match[2] : $str;
+      $str = trim($str);
+      $namespaces[$namespaceName][] = $str;
     });
+
+    if (count($namespaces) > 0)
+    {
+      foreach($namespaces as $namespace => $classes)
+      {
+        if ($namespace !== $no_namespace)
+        {
+          $ret .= 'namespace '.$namespace.' {'.LE;
+          foreach($classes as $class)
+          {
+            $ret .= $class.LE.LE;
+          }
+          $ret .= '} // end of namespace "'.$namespace.'"'.LE.LE.LE;
+        }
+      }
+    }
+
+    if (isset($namespaces[$no_namespace]))
+    {
+      $ret .= 'namespace {'.LE;
+
+      foreach($namespaces[$no_namespace] as $class)
+      {
+        $ret .= $class.LE.LE;
+      }
+
+      $ret .= $rscClassAsString;
+
+      $ret .= $this->readPHPFile($this->mainF);
+
+      $ret .= '} // end of root namespace'.LE.LE.LE;
+    }
+
+    $this->closePHP();
 
     return $ret;
   }
@@ -322,58 +366,26 @@ class Leim
     return $ret;
   }
 
-  /*
-  public function openRootNamespace() : string
-  {
-    $ret  = '';
-    $ret .= 'namespace'.LE;
-    $ret .= '{'.LE;
-
-    return $ret;
-  }
-  */
-
-  /*
-  public function closeRootNamespace() : string
-  {
-    $ret  = '';
-    $ret .= '}'.LE; // namespace
-    $ret .= LE;
-
-    return $ret;
-  }
-  */
-
   /**
    *  Controller
    */
   public function run() : void
   {
-    $ret  = '';
+    $str  = '';
 
-    $ret .= $this->openPHP();
+    $str .= $this->openRscClass();
+    $str .= $this->renderAssets();
+    $str .= $this->openStyleMemberVar();
+    $str .= $this->renderStyleVars();
+    $str .= $this->renderStyleFiles();
+    $str .= $this->closeStyleMemberVar();
+    $str .= $this->renderJsFiles();
+    $str .= $this->renderHelperFunctions();
+    $str .= $this->closeRscClass();
 
-    $ret .= $this->renderPHPFiles();
+    $str = $this->renderPHP($str);
 
-    // $ret .= $this->openRootNamespace();
-
-    $ret .= $this->openRscClass();
-    $ret .= $this->renderAssets();
-    $ret .= $this->openStyleMemberVar();
-    $ret .= $this->renderStyleVars();
-    $ret .= $this->renderStyleFiles();
-    $ret .= $this->closeStyleMemberVar();
-    $ret .= $this->renderJsFiles();
-    $ret .= $this->renderHelperFunctions();
-    $ret .= $this->closeRscClass();
-
-    $ret .= $this->renderMainPHP();
-
-    // $ret .= $this->closeRootNamespace();
-
-    $ret .= $this->closePHP();
-
-    file_put_contents($this->outF, $ret);
+    file_put_contents($this->outF, $str);
   }
 
 }

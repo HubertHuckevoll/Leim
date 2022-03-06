@@ -1,5 +1,7 @@
 <?php
 
+namespace dummy;
+
   class Test
   {
     public function getText()
